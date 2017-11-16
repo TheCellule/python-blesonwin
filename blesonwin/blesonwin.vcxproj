@@ -170,6 +170,9 @@
   <ItemGroup>
     <ClCompile Include="blesonwin.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="setup.py" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
