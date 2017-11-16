@@ -43,6 +43,10 @@ using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Devices;
 using namespace winrt::Windows::Devices::Bluetooth;
 
+
+void call_on_advertisement_callback(const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisement);
+
+
 Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher = nullptr;
 Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPublisher = nullptr;
 
@@ -60,9 +64,9 @@ PyObject* start_observer_impl() {
 
 	bleAdvertisementWatcher.ScanningMode(Bluetooth::Advertisement::BluetoothLEScanningMode::Active);
 
-	bleAdvertisementWatcher.Received([=](auto &&, auto &&) {
-		cout << "Advertisment Report received..." << endl;
-		call_on_advertisement_callback();
+	bleAdvertisementWatcher.Received([=](const Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisement) {
+		cout << "Advertisment Report received..."  <<endl;
+		call_on_advertisement_callback(advertisement);
 	});
 
 	cout << "Starting AdvertisementWatcher" << endl;
@@ -124,19 +128,23 @@ static PyObject* on_advertisement_impl(PyObject *dummy, PyObject *args)
 	return result;
 }
 
-void call_on_advertisement_callback() {
+void call_on_advertisement_callback(const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisement) {
 	if (!on_advertisement_callback) {
 		return;
 	}
-
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
 
-	int arg = 123;
+	PyObject *advertisement_dict = PyDict_New();
+	//PyDict_SetItem(advertisement_dict, Py_BuildValue("s", "key1"), Py_BuildValue("i", 123));
+
 	PyObject *arglist;
+	//arglist = Py_BuildValue("(o)", advertisement_dict);
+	arglist = Py_BuildValue("(i)", advertisement.RawSignalStrengthInDBm());
+
 	PyObject *result;
-	arglist = Py_BuildValue("(i)", arg);
 	result = PyObject_CallObject(on_advertisement_callback, arglist);
+	Py_DECREF(advertisement_dict);
 	Py_DECREF(arglist);
 
 	if (result == NULL)
