@@ -5,14 +5,11 @@ from blesonwin import (initialise,
 
 initialise()
 
+start_observer()
+sleep(5)
+stop_observer()
 
 start_advertiser()
 sleep(5)
 stop_advertiser()
 
-exit(0)
-sleep(3)
-
-start_observer()
-sleep(5)
-stop_observer()

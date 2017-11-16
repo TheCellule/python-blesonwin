@@ -58,6 +58,12 @@ PyObject* start_observer_impl() {
 	cout << "Creating AdvertisementWatcher" << endl;
 	bleAdvertisementWatcher = Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
 
+	bleAdvertisementWatcher.ScanningMode(Bluetooth::Advertisement::BluetoothLEScanningMode::Active);
+
+	bleAdvertisementWatcher.Received([=](auto &&, auto &&) {
+		cout << "Advertisment Report received..." << endl;
+	});
+
 	cout << "Starting AdvertisementWatcher" << endl;
 	bleAdvertisementWatcher.Start();
 

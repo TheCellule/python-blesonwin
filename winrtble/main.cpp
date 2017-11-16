@@ -28,6 +28,8 @@ using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Devices;
 using namespace winrt::Windows::Devices::Bluetooth;
 
+// "you never use 'ref new' (or 'new') to allocate a C++/WinRT type. Instead you allocate the value on the stack or as a field of an object."
+// see cppwinrt usage ref link above.
 Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher = nullptr;
 Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPublisher = nullptr;
 
@@ -53,10 +55,21 @@ void test_advertiser() {
 }
 
 
-// C# Sample ref: https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario1_Watcher.xaml.cs
+// C# Sample refs: 
+
+// Foreground: https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario1_Watcher.xaml.cs
+
+// Background: https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario3_BackgroundWatcher.xaml.cs
 void test_watcher() {
 	cout << "Creating Advertisement Watcher" << endl;
 	bleAdvertisementWatcher = Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
+
+	bleAdvertisementWatcher.ScanningMode(Bluetooth::Advertisement::BluetoothLEScanningMode::Active);
+
+	bleAdvertisementWatcher.Received([=](auto &&, auto &&) {
+		cout << "Advertisment Report received..." << endl;
+	});
+
 
 	cout << "Starting Watcher" << endl;
 	bleAdvertisementWatcher.Start();
