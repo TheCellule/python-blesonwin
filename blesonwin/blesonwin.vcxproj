@@ -72,18 +72,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>blesonwin</TargetName>
     <TargetExt>.pyd</TargetExt>
+    <IncludePath>$(ProjectDir)winrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>blesonwin</TargetName>
     <TargetExt>.pyd</TargetExt>
+    <IncludePath>$(ProjectDir)winrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>blesonwin</TargetName>
     <TargetExt>.pyd</TargetExt>
+    <IncludePath>$(ProjectDir)winrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>blesonwin</TargetName>
     <TargetExt>.pyd</TargetExt>
+    <IncludePath>$(ProjectDir)winrt;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,6 +97,12 @@
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Python36-32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>Py_LIMITED_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/await /std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <CompileAsWinRT>true</CompileAsWinRT>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalUsingDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\lib\store\references;C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Python36-32\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -106,6 +116,12 @@
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Python36-32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>Py_LIMITED_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/await /std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <CompileAsWinRT>true</CompileAsWinRT>
+      <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalUsingDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\lib\store\references;C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Python36-32\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -121,6 +137,9 @@
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Python36-32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>Py_LIMITED_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/await /std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\lib\store\references;C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata\10.0.16299.0\Facade;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -138,6 +157,9 @@
       <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Python36-32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>Py_LIMITED_API;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/await /std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <CompileAsWinRT>true</CompileAsWinRT>
+      <AdditionalUsingDirectories>C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\vcpackages;C:\Program Files %28x86%29\Microsoft Visual Studio 14.0\VC\lib\store\references;C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata\10.0.16299.0\Facade;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
