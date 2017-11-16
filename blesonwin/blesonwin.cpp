@@ -26,8 +26,8 @@
 // C:\Program Files (x86)\Windows Kits\10\References\Windows.Foundation.FoundationContract\1.0.0.0
 // see: https://social.msdn.microsoft.com/Forums/sqlserver/en-US/a6769b36-0390-44c7-93d9-428298a5234d/setting-path-for-windowswinmd-in-visual-studio-2015-when-using-zw-option-to-write-ccx-code-to?forum=visualstudiogeneral
 
-// Taken care of by the /ZW flag set above.
-//#pragma comment(lib, "windowsapp")
+// Also taken care of by the /ZW flag set above, so helpful to keep for the setup.py
+#pragma comment(lib, "windowsapp")
 
 #include <Windows.h>
 #include <string>
