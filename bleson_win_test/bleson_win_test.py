@@ -1,7 +1,7 @@
 
 from itertools import islice
 from random import random
-from time import perf_counter
+from time import perf_counter, sleep
 
 COUNT = 500000  # Change this value depending on the speed of your computer
 DATA = list(islice(iter(lambda: (random() - 0.5) * 3.0, None), COUNT))
@@ -46,3 +46,4 @@ if __name__ == "__main__":
     #test(lambda d: [fast_tanh(x) for x in d], '[fast_tanh(x) for x in d]')
 
     fast_tanh(1)
+    sleep(10)

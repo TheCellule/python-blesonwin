@@ -31,7 +31,13 @@ C:\Program Files (x86)\Windows Kits\10\References\Windows.Foundation.FoundationC
 
 #include <Python.h>
 
+#include "winrt/Windows.Foundation.h"
+#include "winrt/Windows.Web.Syndication.h"
+using namespace winrt;
+using namespace winrt::Windows::Foundation;
+using namespace winrt::Windows::Web::Syndication;
 using namespace std;
+
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Devices;
 
@@ -51,7 +57,16 @@ PyObject* tanh_impl(PyObject *, PyObject* o) {
 	double tanh_x = sinh_impl(x) / cosh_impl(x);
 
 	cout << "Calling WinRT" << endl;
+
+	// see: https://github.com/Microsoft/cppwinrt/issues/53
+	init_apartment();
+
+	cout << "Creating AdvertisementWatcher" << endl;
+
 	Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher =  Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
+
+	//cout << "Starting AdvertisementWatcher" << endl;
+	//bleAdvertisementWatcher.Start();
 
 	return PyFloat_FromDouble(tanh_x);
 }
