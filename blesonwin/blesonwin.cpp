@@ -9,7 +9,8 @@
 
 // From standard example perform these VS2017 project changes changes for C++/WinRT:
 
-// add winrt include. $(ProjectDir)/winrt
+// On the C++ project item in Solution Explorer:
+// add Properties -> C/C++ -> Additional Include paths: $(ProjectDir)/winrt
 // add Properties -> C/C++ -> Commandline -> Extra Flags : /await /std:c++latest 
 // add Properties -> C/C++, General tab,  Consume Windows Runtime Extension to Yes (/ZW). 
 // add Properties -> C/C++, Code Generation,  Disable Minmal Rebuild 
@@ -17,6 +18,7 @@
 //							C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcpackages
 //							C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\lib\store\references
 //							C:\Program Files (x86)\Windows Kits\10\UnionMetadata
+// TODO: use macros, e.g. $(VCInstallDir), $(WindowsSDKDir)
 
 // Not currently needed on Using path:
 // C:\Program Files (x86)\Windows Kits\10\References\Windows.Networking.Connectivity.WwanContract\1.0.0.0
@@ -39,22 +41,23 @@
 using namespace std;
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Devices;
-
+using namespace winrt::Windows::Devices::Bluetooth;
 
 Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher = nullptr;
+Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPublisher = nullptr;
 
 
 PyObject* initialise_impl() {
 	cout << "Initiliasing C++/WinRT" << endl;
 	winrt::init_apartment();
 
-	cout << "Creating AdvertisementWatcher" << endl;
-	bleAdvertisementWatcher = Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
-
 	Py_RETURN_NONE;
 }
 
 PyObject* start_observer_impl() {
+	cout << "Creating AdvertisementWatcher" << endl;
+	bleAdvertisementWatcher = Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
+
 	cout << "Starting AdvertisementWatcher" << endl;
 	bleAdvertisementWatcher.Start();
 
@@ -68,10 +71,35 @@ PyObject* stop_observer_impl() {
 	Py_RETURN_NONE;
 }
 
+
+// https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario2_Publisher.xaml.cs
+
+PyObject* start_advertiser_impl() {
+	cout << "Starting AdvertisementPublisher" << endl;
+	bleAdvertisementPublisher = Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher();
+
+	Advertisement::BluetoothLEManufacturerData manufacturerData = Advertisement::BluetoothLEManufacturerData();
+
+	manufacturerData.CompanyId(0xFFFE);
+	//manufacturerData.Data(0x1234);
+	//bleAdvertisementPublisher.Advertisement.ManufacturerData.Add(manufacturerData);
+
+	bleAdvertisementPublisher.Start();
+	Py_RETURN_NONE;
+}
+
+PyObject* stop_advertiser_impl() {
+	cout << "Stopping AdvertisementPublisher" << endl;
+
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef blesonwin_methods[] = {
 	{ "initialise", (PyCFunction)initialise_impl, METH_NOARGS, nullptr },
 	{ "start_observer", (PyCFunction)start_observer_impl, METH_NOARGS, nullptr },
 	{ "stop_observer", (PyCFunction)stop_observer_impl, METH_NOARGS, nullptr },
+	{ "start_advertiser", (PyCFunction)start_advertiser_impl, METH_NOARGS, nullptr },
+	{ "stop_advertiser", (PyCFunction)stop_advertiser_impl, METH_NOARGS, nullptr },
 	{ nullptr, nullptr, 0, nullptr }
 };
 
