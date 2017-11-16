@@ -50,8 +50,8 @@ PyObject* tanh_impl(PyObject *, PyObject* o) {
 	double x = PyFloat_AsDouble(o);
 	double tanh_x = sinh_impl(x) / cosh_impl(x);
 
-	cout << "CAllining WinRT" << endl;
-	//Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher =  Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
+	cout << "Calling WinRT" << endl;
+	Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher =  Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
 
 	return PyFloat_FromDouble(tanh_x);
 }

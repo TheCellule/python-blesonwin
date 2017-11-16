@@ -43,4 +43,6 @@ if __name__ == "__main__":
     #test(lambda d: [tanh(x) for x in d], '[tanh(x) for x in d]')
 
     from blesonwin import fast_tanh    
-    test(lambda d: [fast_tanh(x) for x in d], '[fast_tanh(x) for x in d]')
+    #test(lambda d: [fast_tanh(x) for x in d], '[fast_tanh(x) for x in d]')
+
+    fast_tanh(1)
