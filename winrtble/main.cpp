@@ -37,6 +37,9 @@ Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPubl
 // API ref: https://docs.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher
 
 // C# Sample ref: https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario2_Publisher.xaml.cs
+
+// Issue: https://social.msdn.microsoft.com/Forums/sqlserver/en-US/5351a1f0-92f3-498b-a0c1-805d568cb55c/when-uwp-ble-advertising-watcher-is-started-its-status-is-aborted?forum=wdk
+
 void test_advertiser() {
 	cout << "Creating AdvertisementPublisher" << endl;
 

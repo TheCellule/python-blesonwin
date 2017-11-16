@@ -62,6 +62,7 @@ PyObject* start_observer_impl() {
 
 	bleAdvertisementWatcher.Received([=](auto &&, auto &&) {
 		cout << "Advertisment Report received..." << endl;
+		call_on_advertisement_callback();
 	});
 
 	cout << "Starting AdvertisementWatcher" << endl;
@@ -100,12 +101,63 @@ PyObject* stop_advertiser_impl() {
 	Py_RETURN_NONE;
 }
 
+
+static PyObject* on_advertisement_callback = NULL;
+
+static PyObject* on_advertisement_impl(PyObject *dummy, PyObject *args)
+{
+	PyObject *result = NULL;
+	PyObject *temp;
+
+	if (PyArg_ParseTuple(args, "O:on_advertisement", &temp)) {
+		if (!PyCallable_Check(temp)) {
+			PyErr_SetString(PyExc_TypeError, "parameter must be callable");
+			return NULL;
+		}
+		Py_XINCREF(temp);         /* Add a reference to new callback */
+		Py_XDECREF(on_advertisement_callback);  /* Dispose of previous callback */
+		on_advertisement_callback = temp;       /* Remember new callback */
+								  /* Boilerplate to return "None" */
+		Py_INCREF(Py_None);
+		result = Py_None;
+	}
+	return result;
+}
+
+void call_on_advertisement_callback() {
+	if (!on_advertisement_callback) {
+		return;
+	}
+
+	PyGILState_STATE gstate;
+	gstate = PyGILState_Ensure();
+
+	int arg = 123;
+	PyObject *arglist;
+	PyObject *result;
+	arglist = Py_BuildValue("(i)", arg);
+	result = PyObject_CallObject(on_advertisement_callback, arglist);
+	Py_DECREF(arglist);
+
+	if (result == NULL)
+		return; // NULL; /* Pass error back */
+	Py_DECREF(result);
+
+
+	// Release the thread. No Python API allowed beyond this point.
+	PyGILState_Release(gstate);
+}
+
+
+// Python Native Module definition
+
 static PyMethodDef blesonwin_methods[] = {
 	{ "initialise", (PyCFunction)initialise_impl, METH_NOARGS, nullptr },
 	{ "start_observer", (PyCFunction)start_observer_impl, METH_NOARGS, nullptr },
 	{ "stop_observer", (PyCFunction)stop_observer_impl, METH_NOARGS, nullptr },
 	{ "start_advertiser", (PyCFunction)start_advertiser_impl, METH_NOARGS, nullptr },
 	{ "stop_advertiser", (PyCFunction)stop_advertiser_impl, METH_NOARGS, nullptr },
+	{ "on_advertisement", (PyCFunction)on_advertisement_impl, METH_VARARGS, nullptr },
 	{ nullptr, nullptr, 0, nullptr }
 };
 
@@ -117,6 +169,10 @@ static PyModuleDef blesonwin_module = {
 	blesonwin_methods                   // Structure that defines the methods
 };
 
+
 PyMODINIT_FUNC PyInit_blesonwin() {
+	if (!PyEval_ThreadsInitialized()) {
+		PyEval_InitThreads();
+	}
 	return PyModule_Create(&blesonwin_module);
 }
