@@ -34,16 +34,24 @@ Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatche
 Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPublisher = nullptr;
 
 
+// API ref: https://docs.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher
+
 // C# Sample ref: https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario2_Publisher.xaml.cs
 void test_advertiser() {
 	cout << "Creating AdvertisementPublisher" << endl;
-	bleAdvertisementPublisher = Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher();
 
-	Advertisement::BluetoothLEManufacturerData manufacturerData = Advertisement::BluetoothLEManufacturerData();
-	manufacturerData.CompanyId(0xFFFE);
+	Bluetooth::Advertisement::BluetoothLEAdvertisement advertisement = Bluetooth::Advertisement::BluetoothLEAdvertisement();
+	
+	wstring name = L"bleson";
+	advertisement.LocalName(name);
+		
+	bleAdvertisementPublisher = Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher(advertisement);
+
+	//Advertisement::BluetoothLEManufacturerData manufacturerData = Advertisement::BluetoothLEManufacturerData();
+	//manufacturerData.CompanyId(0xFFFE);
 	//manufacturerData.Data(0x1234);
 	//bleAdvertisementPublisher.Advertisement.ManufacturerData.Add(manufacturerData);
-	
+
 	cout << "Starting Advertiser" << endl;
 	bleAdvertisementPublisher.Start();
 
@@ -58,16 +66,20 @@ void test_advertiser() {
 // C# Sample refs: 
 
 // Foreground: https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario1_Watcher.xaml.cs
-
 // Background: https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario3_BackgroundWatcher.xaml.cs
+
+// Background needs Application permission, so unlikely to work for Python.
+
+// C++ ref: https://github.com/urish/win-ble-cpp/blob/master/BLEScanner/BLEScanner.cpp#L84
+
 void test_watcher() {
-	cout << "Creating Advertisement Watcher" << endl;
+	cout << "Creating Advertisement Watcher, a dot will appear for every Advertisemnt report received." << endl;
 	bleAdvertisementWatcher = Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
 
 	bleAdvertisementWatcher.ScanningMode(Bluetooth::Advertisement::BluetoothLEScanningMode::Active);
 
 	bleAdvertisementWatcher.Received([=](auto &&, auto &&) {
-		cout << "Advertisment Report received..." << endl;
+		cout << ".";
 	});
 
 
@@ -85,6 +97,6 @@ void test_watcher() {
 int main(int argc, char *argv[], char *envp[]) {
 	winrt::init_apartment();
 	
-	//test_advertiser();
 	test_watcher();
+	test_advertiser();
 }
