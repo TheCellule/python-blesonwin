@@ -35,6 +35,10 @@
 #include <sstream> 
 #include <iomanip>
 
+// for wcout
+#include <io.h> 
+#include <fcntl.h>
+
 #include "winrt/Windows.Foundation.h"
 #include "winrt/Windows.Devices.Bluetooth.h"
 #include "winrt/Windows.Devices.Bluetooth.Advertisement.h"
@@ -48,7 +52,7 @@ using namespace winrt::Windows::Devices::Bluetooth;
 
 
 void call_on_advertisement_callback(const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisementRecvEvent);
-std::wstring formatBluetoothAddress(unsigned long long BluetoothAddress);
+std::string formatBluetoothAddress(unsigned long long BluetoothAddress);
 
 Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher = nullptr;
 Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPublisher = nullptr;
@@ -57,6 +61,10 @@ Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPubl
 PyObject* initialise_impl() {
 	//cout << "Initiliasing C++/WinRT" << endl;
 	winrt::init_apartment();
+
+	// for wcout
+	//_setmode(_fileno(stdout), _O_U16TEXT);
+
 
 	Py_RETURN_NONE;
 }
@@ -141,34 +149,44 @@ void call_on_advertisement_callback(const Bluetooth::Advertisement::BluetoothLEA
 	}
 	int rssi = advertisementRecvEvent.RawSignalStrengthInDBm();
 	auto advType = advertisementRecvEvent.AdvertisementType();
-	auto bdaddr = formatBluetoothAddress(advertisementRecvEvent.BluetoothAddress()).c_str();
 	auto advertisement = advertisementRecvEvent.Advertisement();
-	auto localName = advertisement.LocalName().c_str();
-	auto serviceUUIDs = advertisement.ServiceUuids();	// aggregates all 16, 32 & 128 bit UUID's into this list!
+	auto serviceUUIDs = advertisement.ServiceUuids();				// aggregates all 16, 32 & 128 bit UUID's into this list!
+
+	auto localName = advertisement.LocalName().data();
+	
+	auto bdaddr              = advertisementRecvEvent.BluetoothAddress();
+	const char* bdaddr_c	 = formatBluetoothAddress(bdaddr).c_str();
+	
+	//PyObject* bdaddr_list_obj= PyList_New(6);
+	//for (size_t i = 0; i < 6; ++i) {
+	//	PyList_SetItem(bdaddr_list_obj, i, Py_BuildValue("i", ((bdaddr >> (i * 8)) & 0xff)));
+	//}
 
 	PyGILState_STATE gstate;
 	gstate = PyGILState_Ensure();
 
-	PyObject *advertisement_dict = PyDict_New();
-	//PyDict_SetItem(advertisement_dict, Py_BuildValue("s", "key1"), Py_BuildValue("i", 123));
+	PyObject* bdaddr_obj = Py_BuildValue("s", bdaddr_c);																	
+	PyObject* localname_obj = PyUnicode_FromWideChar(localName, wcslen(localName));			// https://docs.python.org/3/c-api/unicode.html
 
-	PyObject *arglist;
-	//arglist = Py_BuildValue("(o)", advertisement_dict);
-	arglist = Py_BuildValue("({s:i,s:s,s:s})", 
-		"RSSI", rssi,
-		"ADDRESS", bdaddr,
-		"LOCALNAME", localName
-		);
 
-	PyObject *result;
-	result = PyObject_CallObject(on_advertisement_callback, arglist);
-	Py_DECREF(advertisement_dict);
-	Py_DECREF(arglist);
+	PyObject* advertisement_dict = PyDict_New();
+	PyDict_SetItem(advertisement_dict, Py_BuildValue("s", "RSSI"), Py_BuildValue("i", rssi));
+	PyDict_SetItem(advertisement_dict, Py_BuildValue("s", "ADDRESS"), Py_BuildValue("O", bdaddr_obj));
+	//PyDict_SetItem(advertisement_dict, Py_BuildValue("s", "ADDRESS"), Py_BuildValue("O", bdaddr_list_obj));
+	PyDict_SetItem(advertisement_dict, Py_BuildValue("s", "LOCALNAME"), Py_BuildValue("O", localname_obj));
+	
+	// Make the call!
+	PyObject* arglist = Py_BuildValue("(O)", advertisement_dict);
+	PyObject *result = PyObject_CallObject(on_advertisement_callback, arglist);
 
-	if (result == NULL)
-		return; // NULL; /* Pass error back */
-	Py_DECREF(result);
+	if (advertisement_dict)
+		Py_DECREF(advertisement_dict);
 
+	if (arglist)
+		Py_DECREF(arglist);
+
+	if (result)
+		Py_DECREF(result);
 
 	// Release the thread. No Python API allowed beyond this point.
 	PyGILState_Release(gstate);
@@ -206,19 +224,11 @@ PyMODINIT_FUNC PyInit_blesonwin() {
 
 // Utils
 
-// from : https://github.com/urish/win-ble-cpp/blob/master/BLEScanner/BLEScanner.cpp#L32
-std::wstring formatBluetoothAddress(unsigned long long BluetoothAddress) {
-	cout << BluetoothAddress << endl;
-	std::wostringstream ret;
-	ret << std::hex << std::setfill(L'0')
-		<< std::setw(2) << ((BluetoothAddress >> (5 * 8)) & 0xff) << ":"
-		<< std::setw(2) << ((BluetoothAddress >> (4 * 8)) & 0xff) << ":"
-		<< std::setw(2) << ((BluetoothAddress >> (3 * 8)) & 0xff) << ":"
-		<< std::setw(2) << ((BluetoothAddress >> (2 * 8)) & 0xff) << ":"
-		<< std::setw(2) << ((BluetoothAddress >> (1 * 8)) & 0xff) << ":"
-		<< std::setw(2) << ((BluetoothAddress >> (0 * 8)) & 0xff);
-
-	cout << ret.str().c_str() << endl;
-
-	return ret.str();
+std::string formatBluetoothAddress(unsigned long long bdaddr) {
+	std::stringstream ss;
+	ss << std::setw(2) << std::hex << setfill('0') << static_cast<unsigned int>((bdaddr >> (5 * 8)) & 0xff);
+	for (size_t i = 1; i < 6; ++i) {
+		ss << ':' << std::setw(2) << std::hex << static_cast<unsigned int>((bdaddr >> ((5-i) * 8)) & 0xff);
+	}
+	return ss.str();
 }

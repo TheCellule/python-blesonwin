@@ -21,5 +21,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="setup.py" />
+    <None Include="MANIFEST.in" />
+    <None Include="release.sh" />
+    <None Include="release.cmd" />
+    <None Include="build32.cmd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="README.txt" />
   </ItemGroup>
 </Project>

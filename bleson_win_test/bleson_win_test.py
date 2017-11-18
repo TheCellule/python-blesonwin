@@ -18,3 +18,4 @@ stop_observer()
 #sleep(5)
 #stop_advertiser()
 
+sleep(20)

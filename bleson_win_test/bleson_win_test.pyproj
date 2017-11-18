@@ -11,6 +11,8 @@
     <OutputPath>.</OutputPath>
     <Name>bleson_win_test</Name>
     <RootNamespace>bleson_win_test</RootNamespace>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <EnableNativeCodeDebugging>True</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
