@@ -1,5 +1,6 @@
 SET SCRIPT_DIR=%~dp0
 
+cd %SCRIPT_DIR%
 CALL setenv.cmd
 
 SET PY_CMD=python.exe
