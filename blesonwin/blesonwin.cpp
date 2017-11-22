@@ -26,7 +26,7 @@
 // C:\Program Files (x86)\Windows Kits\10\References\Windows.Foundation.FoundationContract\1.0.0.0
 // see: https://social.msdn.microsoft.com/Forums/sqlserver/en-US/a6769b36-0390-44c7-93d9-428298a5234d/setting-path-for-windowswinmd-in-visual-studio-2015-when-using-zw-option-to-write-ccx-code-to?forum=visualstudiogeneral
 
-// Also taken care of by the /ZW flag set above, so helpful to keep for the setup.py
+// Also taken care of by the /ZW flag set above, so helpful to keep for the setup.py, TODO: change to a linker flag
 #pragma comment(lib, "windowsapp")
 
 #include <Windows.h>
@@ -34,10 +34,6 @@
 #include <iostream>
 #include <sstream> 
 #include <iomanip>
-
-// for wcout
-#include <io.h> 
-#include <fcntl.h>
 
 #include "winrt/Windows.Foundation.h"
 #include "winrt/Windows.Devices.Bluetooth.h"
@@ -53,6 +49,7 @@ using namespace winrt::Windows::Devices::Bluetooth;
 
 void call_on_advertisement_callback(const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisementRecvEvent);
 std::string formatBluetoothAddress(unsigned long long BluetoothAddress);
+void handle_eptr(std::exception_ptr eptr);
 
 Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher = nullptr;
 Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPublisher = nullptr;
@@ -60,11 +57,22 @@ Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPubl
 
 PyObject* initialise_impl() {
 	//cout << "Initiliasing C++/WinRT" << endl;
-	winrt::init_apartment();
-
-	// for wcout
-	//_setmode(_fileno(stdout), _O_U16TEXT);
-
+	std::exception_ptr eptr;
+	try {
+		// TODO: investigate why this call raises an exception only when running: python setup.py tests
+		winrt::init_apartment();
+	}
+	// see: https://github.com/Microsoft/cppwinrt/blob/master/Docs/Migrating%20C%2B%2B%20CX%20source%20code%20to%20C%2B%2B%20WinRT.md#mapping-ccx-platform-types-to-cwinrt-types
+	catch (winrt::hresult_error const & ex) {
+		 cout << "IGNORING: blesonwin init Platform::Exception:" << ex.message().c_str() << endl;
+	}
+	catch (std::exception &ex) {
+		cout << "ERROR: blesonwin init std::exception:" << ex.what() << endl;
+	}
+//	  catch (...) {
+//	    eptr = std::current_exception();
+//	    handle_eptr(eptr);
+//    }
 
 	Py_RETURN_NONE;
 }
@@ -223,6 +231,18 @@ PyMODINIT_FUNC PyInit_blesonwin() {
 
 
 // Utils
+
+void handle_eptr(std::exception_ptr eptr) // passing by value is ok
+{
+	try {
+		if (eptr) {
+			std::rethrow_exception(eptr);
+		}
+	}
+	catch (const std::exception& e) {
+		std::cout << "ERROR: Caught exception \"" << e.what() << "\"\n";
+	}
+}
 
 std::string formatBluetoothAddress(unsigned long long bdaddr) {
 	std::stringstream ss;
