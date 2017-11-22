@@ -11,11 +11,9 @@ initialise()
 
 on_advertisement(on_advertisment_callback)
 start_observer()
-sleep(5)
+sleep(2)
 stop_observer()
 
-#start_advertiser()
-#sleep(5)
-#stop_advertiser()
-
-sleep(20)
+start_advertiser()
+sleep(2)
+stop_advertiser()

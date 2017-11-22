@@ -6,7 +6,7 @@ blesonwin_module = Extension('blesonwin',
                              )
 
 setup(name = 'blesonwin', 
-    version = '0.0.8',
+    version = '0.0.9',
     description = 'Windows 10 WinRT Extension for BluetoothLE',
     license='MIT',
     author='TheCellule',

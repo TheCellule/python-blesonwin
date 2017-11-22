@@ -50,6 +50,8 @@ using namespace winrt::Windows::Devices::Bluetooth;
 void call_on_advertisement_callback(const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisementRecvEvent);
 std::string formatBluetoothAddress(unsigned long long BluetoothAddress);
 void handle_eptr(std::exception_ptr eptr);
+PyObject* bleson_py_error(std::string message, winrt::hresult_error const & ex);
+
 
 Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher bleAdvertisementWatcher = nullptr;
 Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher bleAdvertisementPublisher = nullptr;
@@ -59,15 +61,13 @@ PyObject* initialise_impl() {
 	//cout << "Initiliasing C++/WinRT" << endl;
 	std::exception_ptr eptr;
 	try {
-		// TODO: investigate why this call raises an exception only when running: python setup.py tests
+		// TODO: investigate why this call raises an exception (only) when running as: python setup.py tests
 		winrt::init_apartment();
 	}
 	// see: https://github.com/Microsoft/cppwinrt/blob/master/Docs/Migrating%20C%2B%2B%20CX%20source%20code%20to%20C%2B%2B%20WinRT.md#mapping-ccx-platform-types-to-cwinrt-types
 	catch (winrt::hresult_error const & ex) {
-		 cout << "IGNORING: blesonwin init Platform::Exception:" << ex.message().c_str() << endl;
-	}
-	catch (std::exception &ex) {
-		cout << "ERROR: blesonwin init std::exception:" << ex.what() << endl;
+		cout << "IGNORING: blesonwin init Platform::Exception:" << ex.message().c_str() << endl;
+		//return bleson_py_error("blesonwin init failed", ex);
 	}
 //	  catch (...) {
 //	    eptr = std::current_exception();
@@ -79,18 +79,22 @@ PyObject* initialise_impl() {
 
 PyObject* start_observer_impl() {
 	//cout << "Creating AdvertisementWatcher" << endl;
-	bleAdvertisementWatcher = Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
+	try {
+		bleAdvertisementWatcher = Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher();
 
-	bleAdvertisementWatcher.ScanningMode(Bluetooth::Advertisement::BluetoothLEScanningMode::Active);
+		bleAdvertisementWatcher.ScanningMode(Bluetooth::Advertisement::BluetoothLEScanningMode::Active);
 
-	bleAdvertisementWatcher.Received([=](const Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisement) {
-		//cout << "Advertisment Report received..."  <<endl;
-		call_on_advertisement_callback(advertisement);
-	});
+		bleAdvertisementWatcher.Received([=](const Bluetooth::Advertisement::BluetoothLEAdvertisementWatcher watcher, const Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs advertisement) {
+			//cout << "Advertisment Report received..."  <<endl;
+			call_on_advertisement_callback(advertisement);
+		});
 
-	//cout << "Starting AdvertisementWatcher" << endl;
-	bleAdvertisementWatcher.Start();
+		//cout << "Starting AdvertisementWatcher" << endl;
+		bleAdvertisementWatcher.Start();
 
+	} catch (winrt::hresult_error const & ex) {
+		return bleson_py_error("Start watcher failed", ex);
+	}
 	Py_RETURN_NONE;
 }
 
@@ -105,21 +109,28 @@ PyObject* stop_observer_impl() {
 // https://github.com/Microsoft/Windows-universal-samples/blob/master/Samples/BluetoothAdvertisement/cs/Scenario2_Publisher.xaml.cs
 
 PyObject* start_advertiser_impl() {
-	cout << "Starting AdvertisementPublisher" << endl;
-	bleAdvertisementPublisher = Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher();
+	try {
+		//cout << "Starting AdvertisementPublisher" << endl;
+		bleAdvertisementPublisher = Bluetooth::Advertisement::BluetoothLEAdvertisementPublisher();
 
-	Advertisement::BluetoothLEManufacturerData manufacturerData = Advertisement::BluetoothLEManufacturerData();
+		//bleAdvertisementPublisher.Advertisement().LocalName(wstring(L"bleson"));
 
-	manufacturerData.CompanyId(0xFFFE);
-	//manufacturerData.Data(0x1234);
-	//bleAdvertisementPublisher.Advertisement.ManufacturerData.Add(manufacturerData);
+		Advertisement::BluetoothLEManufacturerData manufacturerData = Advertisement::BluetoothLEManufacturerData();
+		manufacturerData.CompanyId(0xFFFE);
+		manufacturerData.Data();
+		bleAdvertisementPublisher.Advertisement().ManufacturerData().Append(manufacturerData);
 
-	bleAdvertisementPublisher.Start();
+		bleAdvertisementPublisher.Start();
+	} catch (winrt::hresult_error const & ex) {
+		return bleson_py_error("Start advertising failed", ex);
+	}
 	Py_RETURN_NONE;
 }
 
+
+
 PyObject* stop_advertiser_impl() {
-	cout << "Stopping AdvertisementPublisher" << endl;
+	//cout << "Stopping AdvertisementPublisher" << endl;
 
 	Py_RETURN_NONE;
 }
@@ -232,6 +243,13 @@ PyMODINIT_FUNC PyInit_blesonwin() {
 
 // Utils
 
+PyObject* bleson_py_error(std::string message, winrt::hresult_error const & ex) {
+	std::stringstream ss;
+	ss << message << " : " << ex.message().c_str() << endl;
+	PyErr_SetString(PyExc_RuntimeError, ss.str().c_str());
+	return NULL;
+}
+
 void handle_eptr(std::exception_ptr eptr) // passing by value is ok
 {
 	try {
@@ -240,7 +258,7 @@ void handle_eptr(std::exception_ptr eptr) // passing by value is ok
 		}
 	}
 	catch (const std::exception& e) {
-		std::cout << "ERROR: Caught exception \"" << e.what() << "\"\n";
+		std::cout << "Caught exception \"" << e.what() << "\"\n";
 	}
 }
 
