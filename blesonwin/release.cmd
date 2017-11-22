@@ -1,6 +1,6 @@
 SET SCRIPT_DIR=%~dp0
 
-setenv.sh
+CALL setenv.cmd
 
 SET PY_CMD=python.exe
 SET PIP_CMD=scripts\pip3 
