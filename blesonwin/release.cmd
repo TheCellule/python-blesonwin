@@ -15,16 +15,22 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary
 
 cd %SCRIPT_DIR%
 "%PY35%\%PY_CMD%" %PACKAGE_CMD%
+if %ERRORLEVEL% NEQ 0 ( exit /b %errorlevel% )
+
 "%PY36%\%PY_CMD%" %PACKAGE_CMD%
+if %ERRORLEVEL% NEQ 0 ( exit /b %errorlevel% )
 
 ECHO 64 Bit builds
 CALL "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
 cd %SCRIPT_DIR%
 "%PY35_AMD%\%PY_CMD%" %PACKAGE_CMD%
+if %ERRORLEVEL% NEQ 0 ( exit /b %errorlevel% )
 "%PY36_AMD%\%PY_CMD%" %PACKAGE_CMD%
+if %ERRORLEVEL% NEQ 0 ( exit /b %errorlevel% )
 
 "%PY36_AMD%\%PY_CMD%" %PACKAGE_SRC_CMD%
+if %ERRORLEVEL% NEQ 0 ( exit /b %errorlevel% )
 
 dir dist
 echo twine upload dist/*
