@@ -1,8 +1,14 @@
+#!/usr/bin/env python3 
+
+# Author: wayne@thebubbleworks.com
+
+
 from time import sleep
 from blesonwin import (initialise, 
                        start_advertiser, stop_advertiser,
                        start_observer, stop_observer,
                        on_advertisement)
+
 
 def on_advertisment_callback(args):
     print(args)

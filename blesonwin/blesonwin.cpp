@@ -1,6 +1,6 @@
 // blesonwin - Native Python Module for accessing the Windows 10+ BLuetooth LE Functions
 
-// wayne@thebubbleworks.com
+// Author: wayne@thebubbleworks.com
 
 // EXPERIMENTAL
 

@@ -1,5 +1,8 @@
 from setuptools import setup, Extension
 
+# Author: wayne@thebubbleworks.com
+
+
 blesonwin_module = Extension('blesonwin',                              
                              sources = ['blesonwin.cpp'],
                              extra_compile_args = ["/std:c++latest"], 
