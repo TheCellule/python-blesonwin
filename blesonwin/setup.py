@@ -9,7 +9,7 @@ from distutils.dir_util import remove_tree
 
 # bleson/VERSION file must follow: https://www.python.org/dev/peps/pep-0440/
 
-version_file = open('VERSION')
+version_file = open(os.path.join('VERSION'))
 version = version_file.read().strip()
 
 # support overriding version from env
@@ -66,12 +66,12 @@ class Publish(SimpleCommand):
 
 
 
-blesonwin_module = Extension('blesonwin',                              
+blesonwin_module = Extension('blesonwin',
                              sources = ['blesonwin.cpp'],
-                             extra_compile_args = ["/std:c++latest"], 
+                             extra_compile_args = ["/std:c++latest"],
                              )
 
-setup(name = 'blesonwin', 
+setup(name = 'blesonwin',
     version = version,
     description = 'Windows 10 WinRT Extension for BluetoothLE',
     license='MIT',
