@@ -1,2 +1,2 @@
 recursive-include winrt *
-include blesonwin/VERSION
+include VERSION
