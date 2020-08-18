@@ -68,7 +68,7 @@ class Publish(SimpleCommand):
 
 blesonwin_module = Extension('blesonwin',                              
                              sources = ['blesonwin.cpp'],
-                             extra_compile_args = ["/std:c++latest"], 
+                             extra_compile_args = ["/std:c++17"],
                              )
 
 setup(name = 'blesonwin', 
